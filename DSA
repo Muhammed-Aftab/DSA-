@@ -1,0 +1,78 @@
+#include <iostream>
+#include <stack>
+#include <string>
+
+using namespace std;
+
+class TextEditor
+{
+private:
+    string text; // Stores the current text
+    stack<string> undoStack; // Stores the previous versions of the text for undo
+    stack<string> redoStack; // Stores the undone versions of the text for redo
+
+public:
+    void insert(char c)
+    {
+        text += c; // Append the character to the current text
+        undoStack.push(text); // Push the updated text to the undo stack
+    }
+
+    void deleteChar()
+    {
+        if (!text.empty())
+        {
+            text.pop_back(); // Remove the last character from the current text
+            undoStack.push(text); // Push the updated text to the undo stack
+        }
+    }
+
+    void undo()
+    {
+        if (!undoStack.empty())
+        {
+            redoStack.push(undoStack.top()); // Push the current text to the redo stack
+            undoStack.pop(); // Pop the current text from the undo stack
+
+            if (!undoStack.empty())
+            {
+                text = undoStack.top(); // Set the current text to the top of the undo stack
+            }
+            else
+            {
+                text = ""; // If the undo stack is empty, set the current text to an empty string
+            }
+        }
+    }
+
+    void redo()
+    {
+        if (!redoStack.empty())
+        {
+            text = redoStack.top(); // Set the current text to the top of the redo stack
+            undoStack.push(redoStack.top()); // Push the current text to the undo stack
+            redoStack.pop(); // Pop the current text from the redo stack
+        }
+    }
+
+    void printText()
+    {
+        cout << text << endl; // Print the current text
+    }
+};
+
+int main()
+{
+    TextEditor editor;
+    editor.insert('a');
+    editor.insert('b');
+    editor.insert('c');
+    editor.printText(); // Output: abc
+    editor.undo();
+    editor.printText(); // Output: ab
+    editor.redo();
+    editor.printText(); // Output: abc
+    editor.deleteChar();
+    editor.printText(); // Output: ab
+    return 0;
+}
